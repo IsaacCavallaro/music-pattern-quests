@@ -31,7 +31,7 @@ export const categories: Category[] = [
     quests: [
       {
         id: 1,
-        title: 'quest 1: rhythmic founndations',
+        title: 'quest 1: rhythmic foundations',
         description: 'master the fundamental beats that form the backbone of modern music.',
         levels: [
           {
