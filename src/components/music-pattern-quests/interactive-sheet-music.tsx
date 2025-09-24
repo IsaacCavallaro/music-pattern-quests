@@ -19,6 +19,14 @@ export interface SheetMusicHandles {
   getTempo: () => number;
 }
 
+// Get the base path for production
+const getBasePath = () => {
+  if (typeof window !== 'undefined') {
+    return window.location.pathname.includes('/music-pattern-quests') ? '/music-pattern-quests' : '';
+  }
+  return process.env.NODE_ENV === 'production' ? '/music-pattern-quests' : '';
+};
+
 export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSheetMusicProps>(
   ({ abcNotation, onTempoChange, initialTempo, onNoteEvent }, ref) => {
     const sheetMusicRef = useRef<HTMLDivElement>(null);
@@ -46,6 +54,21 @@ export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSh
 
     useEffect(() => {
       if (typeof window === 'undefined' || !sheetMusicRef.current) return;
+
+      // Configure abcjs for GitHub Pages deployment
+      const basePath = getBasePath();
+
+      // Set the audio context and synthesis options
+      if ((abcjs as any).synth.setAudioContext) {
+        try {
+          (abcjs as any).synth.setAudioContext({
+            audioPath: `${basePath}/`,
+            soundfontUrl: `${basePath}/`
+          });
+        } catch (configError) {
+          console.warn('Could not configure abcjs audio path:', configError);
+        }
+      }
 
       // Cleanup previous synth
       if (synthControl.current?.midi) {
@@ -85,7 +108,7 @@ export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSh
         return;
       }
 
-      // Initialize audio synth
+      // Initialize audio synth with enhanced error handling
       if (abcjs.synth.supportsAudio()) {
         if (!synthControl.current) {
           synthControl.current = new (abcjs as any).synth.SynthController();
@@ -137,8 +160,15 @@ export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSh
         });
 
         const midiBuffer = new (abcjs as any).synth.CreateSynth();
+
+        // Enhanced audio initialization with better error handling
         midiBuffer
-          .init({ visualObj: visualObj.current![0] })
+          .init({
+            visualObj: visualObj.current![0],
+            options: {
+              audioPath: `${basePath}/`,
+            }
+          })
           .then(() => {
             if (synthControl.current && visualObj.current) {
               return (synthControl.current as any).setTune(
@@ -154,8 +184,27 @@ export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSh
           })
           .catch((err: any) => {
             console.warn('Audio initialization failed:', err);
-            setError(err.message || 'Audio initialization failed.');
-            setIsLoading(false);
+            // Try fallback initialization without custom paths
+            midiBuffer
+              .init({ visualObj: visualObj.current![0] })
+              .then(() => {
+                if (synthControl.current && visualObj.current) {
+                  return (synthControl.current as any).setTune(
+                    visualObj.current[0] as any,
+                    false,
+                    { qpm: currentTempo }
+                  );
+                }
+              })
+              .then(() => {
+                setIsLoading(false);
+                console.log('Audio loaded with fallback method.');
+              })
+              .catch((fallbackErr: any) => {
+                console.error('Fallback audio initialization also failed:', fallbackErr);
+                setError('Audio initialization failed. Music notation will display but audio playback is unavailable.');
+                setIsLoading(false);
+              });
           });
       } else {
         setError('Audio is not supported in this browser.');
@@ -164,7 +213,7 @@ export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSh
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [abcNotation]);
 
-    if (error) {
+    if (error && !error.includes('Audio initialization failed. Music notation will display')) {
       return (
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
@@ -183,6 +232,15 @@ export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSh
 
     return (
       <div className="space-y-4">
+        {error && error.includes('Audio initialization failed. Music notation will display') && (
+          <Alert>
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Audio Unavailable</AlertTitle>
+            <AlertDescription>
+              {error}
+            </AlertDescription>
+          </Alert>
+        )}
         {isLoading && (
           <div className="flex items-center justify-center p-4 text-muted-foreground">
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
