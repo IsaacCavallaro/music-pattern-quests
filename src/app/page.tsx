@@ -13,16 +13,9 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-14 items-center px-4">
-          <div className="mr-4 flex items-center">
-            <span className="font-normal font-headline text-lg">... --- ...</span>
-          </div>
-        </div>
-      </header>
       <main className="flex-1">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="flex justify-center border-b">
+          <div className="sticky top-0 z-50 flex justify-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-5">
             <TabsList>
               <TabsTrigger value="home">home</TabsTrigger>
               <TabsTrigger value="quests">quests</TabsTrigger>
