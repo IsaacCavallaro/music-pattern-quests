@@ -19,7 +19,6 @@ export interface SheetMusicHandles {
   getTempo: () => number;
 }
 
-// Get the base path for production
 const getBasePath = () => {
   if (typeof window !== 'undefined') {
     return window.location.pathname.includes('/music-pattern-quests') ? '/music-pattern-quests' : '';
@@ -58,7 +57,7 @@ export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSh
       },
     }));
 
-    // 🔑 Mobile audio context handling
+    // Patched resumeAudioContext: directly resume abcjs’s context
     const resumeAudioContext = async (): Promise<boolean> => {
       try {
         if (typeof window === 'undefined') return false;
@@ -66,32 +65,23 @@ export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSh
         const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
         if (!AudioContext) return false;
 
-        // Create a temporary audio context to trigger user interaction
-        const audioContext = new AudioContext();
-
-        // Create a tiny silent buffer and play it
-        const buffer = audioContext.createBuffer(1, 1, 22050);
-        const source = audioContext.createBufferSource();
-        source.buffer = buffer;
-        source.connect(audioContext.destination);
-        source.start(0);
-
-        if (audioContext.state === 'suspended') {
-          await audioContext.resume();
+        if (!(abcjs.synth as any).activeAudioContext) {
+          (abcjs.synth as any).setAudioContext(new AudioContext());
         }
 
-        // Close the context after resuming (abcjs will use its own)
-        setTimeout(() => audioContext.close(), 1000);
+        const ctx = (abcjs.synth as any).activeAudioContext as AudioContext;
+        if (ctx.state === 'suspended') {
+          await ctx.resume();
+        }
 
         audioContextResumed.current = true;
         return true;
       } catch (error) {
-        console.error('Error with audio context workaround:', error);
+        console.error('Error resuming abcjs AudioContext:', error);
         return false;
       }
     };
 
-    // 🔑 Your working cursor implementation with added scrolling
     const setupScrollingCursor = () => {
       const svg = sheetMusicRef.current?.querySelector('svg');
       if (svg) {
@@ -101,33 +91,21 @@ export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSh
       }
     };
 
-    // 🔑 FIXED: Added proper type handling for undefined values
     const scrollToCursor = (left: number | undefined, top: number | undefined, height: number | undefined) => {
       if (!sheetMusicContainerRef.current) return;
-
-      // 🔑 FIXED: Provide default values for undefined parameters
-      const safeLeft = left ?? 0;
       const safeTop = top ?? 0;
       const safeHeight = height ?? 20;
-
       const container = sheetMusicContainerRef.current;
       const cursorMiddleY = safeTop + safeHeight / 2;
       const targetScrollTop = cursorMiddleY - container.clientHeight / 2 + container.scrollTop;
-
-      // Smooth scroll to cursor position
-      container.scrollTo({
-        top: targetScrollTop,
-        behavior: 'smooth'
-      });
+      container.scrollTo({ top: targetScrollTop, behavior: 'smooth' });
     };
 
-    // Main effect to render and initialize audio
     useEffect(() => {
       if (typeof window === 'undefined' || !sheetMusicRef.current) return;
 
       const basePath = getBasePath();
 
-      // Configure audio paths for production - FIXED: Use the correct method
       if ((abcjs as any).synth.setAudioContext) {
         try {
           (abcjs as any).synth.setAudioContext({
@@ -139,7 +117,6 @@ export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSh
         }
       }
 
-      // Cleanup previous instances
       if (synthControl.current?.midi) {
         synthControl.current.midi.stop();
       }
@@ -149,12 +126,10 @@ export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSh
 
       let currentTempo = initialTempo;
 
-      // Render the sheet music
       try {
         const renderOptions = { add_classes: true, responsive: 'resize' as const };
         visualObj.current = abcjs.renderAbc(sheetMusicRef.current, abcNotation, renderOptions);
 
-        // FIXED: Handle tempo extraction properly
         if (visualObj.current?.[0]) {
           const tempoValue = visualObj.current[0].metaText?.tempo;
           if (typeof tempoValue === 'string') {
@@ -173,7 +148,6 @@ export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSh
               onTempoChange(tempoValue.bpm);
             }
           } else {
-            // If no tempo in notation, use the initial tempo from props.
             currentTempo = initialTempo;
             if (tempo !== initialTempo) {
               setTempo(initialTempo);
@@ -181,7 +155,6 @@ export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSh
             }
           }
         }
-
       } catch (renderError: any) {
         console.error('Error rendering ABC notation:', renderError);
         setError(renderError.message || 'An unknown error occurred during rendering.');
@@ -189,14 +162,11 @@ export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSh
         return;
       }
 
-      // Initialize the audio synthesizer
       if (abcjs.synth.supportsAudio()) {
-        // FIXED: Use the correct way to create SynthController
         if (!synthControl.current) {
           synthControl.current = new (abcjs as any).synth.SynthController();
         }
 
-        // 🔑 Your working cursor control with added scrolling
         const cursorControl = {
           onStart: () => {
             setupScrollingCursor();
@@ -217,20 +187,15 @@ export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSh
           onEvent: (ev: abcjs.NoteTimingEvent) => {
             onNoteEvent?.(ev);
             if (ev.measureStart && ev.left === null) return;
-
             const cursor = sheetMusicRef.current?.querySelector('.abcjs-cursor');
             if (cursor) {
-              // 🔑 FIXED: Handle undefined values with nullish coalescing
               const left = ev.left ?? 0;
               const top = ev.top ?? 0;
               const height = ev.height ?? 20;
-
               cursor.setAttribute('x1', String(left));
               cursor.setAttribute('x2', String(left));
               cursor.setAttribute('y1', String(top));
               cursor.setAttribute('y2', String(top + height));
-
-              // 🔑 FIXED: Pass the values directly, even if they might be undefined
               scrollToCursor(ev.left, ev.top, ev.height);
             }
           },
@@ -244,18 +209,13 @@ export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSh
           displayWarp: false,
         });
 
-        // FIXED: Use the correct way to create CreateSynth
         const midiBuffer = new (abcjs as any).synth.CreateSynth();
         midiBufferRef.current = midiBuffer;
 
-        // FIXED: Remove audioPath from options since it's not a valid property
         midiBuffer
-          .init({
-            visualObj: visualObj.current![0]
-          })
+          .init({ visualObj: visualObj.current![0] })
           .then(() => {
             if (synthControl.current && visualObj.current) {
-              // FIXED: Pass tempo as object with qpm property
               return synthControl.current.setTune(visualObj.current[0], false, { qpm: currentTempo });
             }
           })
@@ -265,9 +225,7 @@ export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSh
           })
           .catch((err: any) => {
             console.warn('Audio initialization failed:', err);
-            setError(
-              err.message || 'Audio initialization failed. Could not prepare the audio synthesizer.'
-            );
+            setError(err.message || 'Audio initialization failed. Could not prepare the audio synthesizer.');
             setIsLoading(false);
           });
       } else {
@@ -276,13 +234,11 @@ export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSh
       }
     }, [abcNotation, initialTempo, onTempoChange, onNoteEvent, tempo]);
 
-    // 🔑 Custom play/stop button with mobile audio context handling
+    // Updated togglePlay: resumes abcjs context on tap
     const togglePlay = async () => {
       try {
-        // For mobile browsers, resume audio context on first interaction
         if (!audioContextResumed.current) {
           await resumeAudioContext();
-          audioContextResumed.current = true;
         }
 
         if (!synthControl.current) {
@@ -290,12 +246,10 @@ export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSh
           return;
         }
 
-        // Reset scroll position when starting playback
         if (!isPlaying && sheetMusicContainerRef.current) {
           sheetMusicContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Use abcjs's built-in play/pause functionality
         const playButton = document.querySelector('#audio .abcjs-midi-start') as HTMLButtonElement;
         if (playButton) {
           playButton.click();
@@ -306,7 +260,7 @@ export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSh
       }
     };
 
-    // 🔑 Pre-warm audio context on first touch for mobile
+    // Pre-warm context on first tap/click
     useEffect(() => {
       const handleFirstInteraction = () => {
         if (!audioContextResumed.current) {
@@ -317,10 +271,8 @@ export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSh
           });
         }
       };
-
       document.addEventListener('touchstart', handleFirstInteraction, { once: true, passive: true });
       document.addEventListener('click', handleFirstInteraction, { once: true });
-
       return () => {
         document.removeEventListener('touchstart', handleFirstInteraction);
         document.removeEventListener('click', handleFirstInteraction);
@@ -353,7 +305,7 @@ export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSh
           </div>
         )}
 
-        {/* 🔑 Custom Play/Stop Button */}
+        {/* Custom Play/Stop Button */}
         <div className="flex items-center gap-2">
           <button
             onClick={togglePlay}
@@ -370,7 +322,6 @@ export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSh
           <div id="audio" className="flex-grow" />
         </div>
 
-        {/* 🔑 Scrollable container for the notation */}
         <div
           ref={sheetMusicContainerRef}
           className="p-4 border rounded-lg bg-card overflow-auto shadow-inner max-h-[600px]"
