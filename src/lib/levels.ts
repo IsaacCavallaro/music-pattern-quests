@@ -61,7 +61,7 @@ V:ALL stem=down
             title: 'adding the hi hats',
             description: "now, let's add the hi-hat to the basic rock beat you learned in level 1 to create a full groove.",
             instructions: "now let's add a steady hi-hat pattern on top of the kick and snare pattern from the previous level. can you notice anything different about the hi hat patterns from the bass drum and snare drum?",
-            review: "",
+            review: "Nice! Now we're cooking with gas! The hi-hats are like the engine that keeps the beat chugging along. They're the busy bee of the drum kit, ticking away twice as fast as the kick and snare. This is the secret sauce that turns a simple pattern into a real groove!",
             notation: `X:1
 T:adding the hi hats
 C: 
@@ -85,7 +85,7 @@ V:ALL stem=up
             title: 'speed it up',
             description: "the exact same beat can feel totally different when you change the tempo. let's see what happens when we speed up the beat from level 2.",
             instructions: "this is the same beat you learned in the previous level. however, we've increased the tempo from 100 bpm to 117 bpm. listen closely. does it sound familiar? this is the same beat as the opening to a popular song. can you figure it out?",
-            review: "",
+            review: "Whoa, feel that energy shift? A little speed turns our practice beat into a dance floor classic! It's amazing how tempo is like a mood dial for music. You just learned the heartbeat of one of the biggest pop songs ever. Now you can't unhear it, can you?",
             notation: `X:1
 T:classic rock anthem
 C: 
@@ -109,7 +109,7 @@ V:ALL stem=up
             title: 'slow it down',
             description: "now let's slow it down. the same beat can create a heavy, powerful rock feel at a lower tempo.",
             instructions: "this is the same beat from the previous levels, but now we've dropped the tempo to 93 bpm. notice how this gives it a heavy, driving feel. can you guess the song?",
-            review: "",
+            review: "Boom. Now that's a different kind of power. Slowing it down makes every hit feel like a heavyweight champion landing a punch. This tempo turns our groovy pattern into a head-banging rock anthem. Pure, unstoppable swagger!",
             notation: `X:1
 T:classic rock anthem
 C: 
@@ -133,7 +133,7 @@ V:ALL stem=up
             title: 'we will rock you',
             description: "learn the iconic, simple, and powerful beat from queen's legendary anthem.",
             instructions: "this beat is one of the most recognizable in rock history. it's a simple but powerful pattern of two bass drum hits followed by a snare hit, creating the famous 'stomp-stomp-clap' feel. notice that this notation only uses the bass drum ('f') and the snare drum ('c'). the rests are just as important as the notes!",
-            review: "",
+            review: "STOMP. STOMP. CLAP! You've just unlocked one of the most powerful beats in rock history. The genius is in the space - the silence between the hits is what makes it so massive. Now you're ready to rock any stadium in the world!",
             notation: `X:1
 T:we will rock you
 C: 
@@ -156,7 +156,7 @@ V:ALL stem=up
             instructions: "see if you can notice any new patterns in the notation?",
             hint: "look at what is at the end of the notation and near the beginning.",
             answer: "we introduced repeats to the notation. notice at the end of the notation we have :| and near the beginning we have |: this means we will repeat the pattern between |: and :|",
-            review: "",
+            review: "Welcome to the 80s! This driving beat shows how a simple pattern can create an entire vibe. And look at you, reading repeat signs like a pro! This is how we keep the party going all night long without writing a million measures.",
             notation: `X:1
 T:blinding lights
 C: 
