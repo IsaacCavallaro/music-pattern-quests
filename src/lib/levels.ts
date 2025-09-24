@@ -4,6 +4,7 @@ export interface DrumLevel {
   title: string;
   description: string;
   instructions: string;
+  review: string;
   notation: string; // The correct, reference notation
   hint?: string;
   answer?: string;
@@ -38,7 +39,8 @@ export const categories: Category[] = [
             level: 1,
             title: 'the basic rock beat',
             description: "let's combine the kick and snare to create one of the most common beats in music.",
-            instructions: "welcome to your first beat. there is a lot going on in the notation below but don't worry, we will get to learning it all soon enough. let's start with the basics first. in the notation below,  we have the building blocks to a rock beat with the bass drum the snare drum. can you tell what beats the bass drum fall on and what beats the snare drum fall on?",
+            instructions: "welcome to your first beat. there is a lot going on in the notation below but don't worry, we will get to learning it all soon enough. let's start with the basics first. in the notation below,  we have the building blocks to a rock beat with the bass drum and the snare drum. can you tell what beats the bass drum fall on and what beats the snare drum fall on?",
+            review: "so far we've looked at the snare drum and the bass drum played in a 'stomp clap' kind of fashion. if you stomp your feet and clap your hands in time with the notation & playback, you are reading the music correctly.",
             notation: `X:1
 T:the basic rock beat
 %%barnumbers 1
@@ -59,6 +61,7 @@ V:ALL stem=down
             title: 'adding the hi hats',
             description: "now, let's add the hi-hat to the basic rock beat you learned in level 1 to create a full groove.",
             instructions: "now let's add a steady hi-hat pattern on top of the kick and snare pattern from the previous level. can you notice anything different about the hi hat patterns from the bass drum and snare drum?",
+            review: "",
             notation: `X:1
 T:adding the hi hats
 C: 
@@ -82,6 +85,7 @@ V:ALL stem=up
             title: 'speed it up',
             description: "the exact same beat can feel totally different when you change the tempo. let's see what happens when we speed up the beat from level 2.",
             instructions: "this is the same beat you learned in the previous level. however, we've increased the tempo from 100 bpm to 117 bpm. listen closely. does it sound familiar? this is the same beat as the opening to a popular song. can you figure it out?",
+            review: "",
             notation: `X:1
 T:classic rock anthem
 C: 
@@ -105,6 +109,7 @@ V:ALL stem=up
             title: 'slow it down',
             description: "now let's slow it down. the same beat can create a heavy, powerful rock feel at a lower tempo.",
             instructions: "this is the same beat from the previous levels, but now we've dropped the tempo to 93 bpm. notice how this gives it a heavy, driving feel. can you guess the song?",
+            review: "",
             notation: `X:1
 T:classic rock anthem
 C: 
@@ -128,6 +133,7 @@ V:ALL stem=up
             title: 'we will rock you',
             description: "learn the iconic, simple, and powerful beat from queen's legendary anthem.",
             instructions: "this beat is one of the most recognizable in rock history. it's a simple but powerful pattern of two bass drum hits followed by a snare hit, creating the famous 'stomp-stomp-clap' feel. notice that this notation only uses the bass drum ('f') and the snare drum ('c'). the rests are just as important as the notes!",
+            review: "",
             notation: `X:1
 T:we will rock you
 C: 
@@ -150,6 +156,7 @@ V:ALL stem=up
             instructions: "see if you can notice any new patterns in the notation?",
             hint: "look at what is at the end of the notation and near the beginning.",
             answer: "we introduced repeats to the notation. notice at the end of the notation we have :| and near the beginning we have |: this means we will repeat the pattern between |: and :|",
+            review: "",
             notation: `X:1
 T:blinding lights
 C: 
@@ -184,6 +191,7 @@ V:ALL stem=up
             title: 'a classic melody',
             description: "learn the iconic melody of a classic children's song.",
             instructions: "welcome to your first melody. there is a lot to cover when lookinng at the notation but we will get to all of that in due time. for now, can you figure out what song this is?",
+            review: "",
             notation: `X:3
 T:a classic melody
 M:4/4
@@ -210,6 +218,7 @@ g = 5 (dominant)
 a = 6 (submediant)
 
 this numbering system shows each note's position within the c major scale, which is particularly useful for understanding the harmonic structure and for transposing to other keys.`,
+            review: "",
             notation: `X:3
 T:twinkle, twinkle, little star
 M:4/4
@@ -239,6 +248,7 @@ K:C
             title: 'A simple progressiion (i-iv-v-i) - root position',
             description: 'learn the most common and important chord progression in all of western music.',
             instructions: "this is the i-iv-v-i (one-four-five-one) progression in the key of c major. there is a lot going on in there but we will go through it step by step in each level. in the notation we have 4 chords (in this case they are triads). the first chord is 'C Major' and is made up of 3 notes (c,e,g). The second chord is 'F major' and it is made up of 3 notes  (f,a,c). Can you figure out the notes from the next 2 chords?",
+            review: "",
             notation: `X:4
 T:the first progression (i-iv-v-i) - root position
 M:4/4
@@ -254,6 +264,7 @@ V:1
             title: 'A simple progressiion (i-iv-v-i) - 1st inversion',
             description: 'learn the i-iv-v-i progression with chords in their first inversion.',
             instructions: "this is the same i-iv-v-i progression, but now the chords are in '1st inversion'. we are using the exact same notes but we have done something different to one of them. can you tell what has changed in the notation?",
+            review: "",
             notation: `X:4
 T:the first progression (i-iv-v-i) - 1st inversion
 M:4/4
@@ -269,6 +280,7 @@ V:1
             title: 'A simple progressiion (i-iv-v-i) - 2nd inversion',
             description: 'learn the i-iv-v-i progression with chords in their second inversion.',
             instructions: "this is the same i-iv-v-i progression, but now the chords are in '2nd inversion'. this means the fifth of the chord is now the lowest note. this type of inversion can create a powerful, open sound and is often used to create a different kind of harmonic movement.",
+            review: "",
             notation: `X:4
 T:the first progression (i-iv-v-i) - 2nd inversion
 M:4/4

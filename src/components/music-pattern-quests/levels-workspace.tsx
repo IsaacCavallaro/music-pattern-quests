@@ -365,7 +365,7 @@ function LevelDetail({
             <CardTitle className="font-headline">review</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">notice the only change we made in this notation is the number   near the top left if 117 whereas in our previous level it was 100. this is how we notate the speed on the music which we refer to as 'beats per minute' or bpm. </p>
+            <p className="text-muted-foreground">{level.review}</p>
           </CardContent>
         </Card>
       </div>
