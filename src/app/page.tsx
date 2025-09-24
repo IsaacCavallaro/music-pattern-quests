@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { MusicPatternQuestsWorkspace } from '@/components/music-pattern-quests/music-pattern-quests-workspace';
-import { Code } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LevelsWorkspace } from '@/components/music-pattern-quests/levels-workspace';
 import { HomeWorkspace } from '@/components/music-pattern-quests/home-workspace';
@@ -16,7 +16,13 @@ export default function Home() {
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex h-14 items-center px-4">
           <div className="mr-4 flex items-center">
-            <Code className="h-6 w-6 mr-2 text-primary" />
+            <Image
+              src="/favicon.ico"
+              alt="Music Pattern Quests Logo"
+              width={24}
+              height={24}
+              className="mr-2"
+            />
             <span className="font-normal font-headline text-lg">music-pattern-quests</span>
           </div>
         </div>
