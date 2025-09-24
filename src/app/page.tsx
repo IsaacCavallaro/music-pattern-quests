@@ -7,6 +7,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LevelsWorkspace } from '@/components/music-pattern-quests/levels-workspace';
 import { HomeWorkspace } from '@/components/music-pattern-quests/home-workspace';
 import { PatternsWorkspace } from '@/components/music-pattern-quests/patterns-workspace';
+import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+  AlertDialogFooter,
+  AlertDialogAction
+} from '@/components/ui/alert-dialog';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('home');
@@ -22,6 +33,26 @@ export default function Home() {
               <TabsTrigger value="patterns">patterns</TabsTrigger>
               <TabsTrigger value="workspace">workspace</TabsTrigger>
             </TabsList>
+            <div className="absolute right-4">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    help
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Need help with sound?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Sound not working or being odd? Try using this website from a desktop (not a mobile device).
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogAction>got it</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           </div>
           <TabsContent value="home">
             <HomeWorkspace onTabChange={setActiveTab} />
