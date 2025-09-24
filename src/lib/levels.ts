@@ -245,10 +245,10 @@ K:C
         levels: [
           {
             level: 1,
-            title: 'A simple progression (i-iv-v-i) - root position',
+            title: 'A simple progression - root position',
             description: 'learn the most common and important chord progression in all of western music.',
             instructions: "this is the i-iv-v-i (one-four-five-one) progression in the key of c major. there is a lot going on in there but we will go through it step by step in each level. in the notation we have 4 chords (in this case they are triads). the first chord is 'C Major' and is made up of 3 notes (c,e,g). The second chord is 'F major' and it is made up of 3 notes  (f,a,c). Can you figure out the notes from the next 2 chords?",
-            review: "",
+            review: "Wow, you just played the chord progression that built a million hit songs! This simple I-IV-V-I is like the comfort food of music—it just feels like home. You're already building the foundation for everything from pop to rock to classical!",
             notation: `X:4
 T:the first progression (i-iv-v-i) - root position
 M:4/4
@@ -261,10 +261,10 @@ V:1
           },
           {
             level: 2,
-            title: 'A simple progression (i-iv-v-i) - 1st inversion',
+            title: 'A simple progression - 1st inversion',
             description: 'learn the i-iv-v-i progression with chords in their first inversion.',
             instructions: "this is the same i-iv-v-i progression, but now the chords are in '1st inversion'. we are using the exact same notes but we have done something different to one of them. can you tell what has changed in the notation?",
-            review: "",
+            review: "Look at you, flipping chords upside down! Well, sort of. By putting a different note on the bottom, we give the same old progression a fresh, smooth sound. It's like giving your musical furniture a new arrangement—same pieces, cooler vibe!",
             notation: `X:4
 T:the first progression (i-iv-v-i) - 1st inversion
 M:4/4
@@ -277,7 +277,7 @@ V:1
           },
           {
             level: 3,
-            title: 'A simple progression (i-iv-v-i) - 2nd inversion',
+            title: 'A simple progression - 2nd inversion',
             description: 'learn the i-iv-v-i progression with chords in their second inversion.',
             instructions: "this is the same i-iv-v-i progression, but now the chords are in '2nd inversion'. this means the fifth of the chord is now the lowest note. this type of inversion can create a powerful, open sound and is often used to create a different kind of harmonic movement.",
             review: "",
