@@ -11,7 +11,7 @@ export interface DrumLevel {
 
 export interface Quest {
   id: number;
-  title:string;
+  title: string;
   description: string;
   levels: DrumLevel[];
 }
@@ -31,7 +31,7 @@ export const categories: Category[] = [
     quests: [
       {
         id: 1,
-        title: 'quest 1: the rhythmic foundation of drums',
+        title: 'quest 1: rhythmic founndations',
         description: 'master the fundamental beats that form the backbone of modern music.',
         levels: [
           {
@@ -176,7 +176,7 @@ V:ALL stem=up
     quests: [
       {
         id: 1,
-        title: 'quest 1: the melodic foundation',
+        title: 'quest 1: melody foundations',
         description: 'learn the building blocks of melodies and how to create your own tunes.',
         levels: [
           {
@@ -229,56 +229,56 @@ K:C
     title: 'harmony',
     description: 'understand how chords and progressions create musical depth.',
     quests: [
-        {
-            id: 1,
-            title: 'quest 1: the harmonic foundation',
-            description: 'learn the fundamentals of how chords work together to create harmony.',
-            levels: [
-              {
-                level: 1,
-                title: 'the first progression (i-iv-v-i) - root position',
-                description: 'learn the most common and important chord progression in all of western music.',
-                instructions: "this is the i-iv-v-i (one-four-five-one) progression in the key of c major. there is a lot going on in there but we will go through it step by step in each level. in the notation we have 4 chords (in this case they are triads). the first chord is 'C Major' and is made up of 3 notes (c,e,g). The second chord is 'F major' and it is made up of 3 notes  (f,a,c). Can you figure out the notes from the next 2 chords?",
-                notation: `X:4
+      {
+        id: 1,
+        title: 'quest 1: harmony foundations',
+        description: 'learn the fundamentals of how chords work together to create harmony.',
+        levels: [
+          {
+            level: 1,
+            title: 'A simple progressiion (i-iv-v-i) - root position',
+            description: 'learn the most common and important chord progression in all of western music.',
+            instructions: "this is the i-iv-v-i (one-four-five-one) progression in the key of c major. there is a lot going on in there but we will go through it step by step in each level. in the notation we have 4 chords (in this case they are triads). the first chord is 'C Major' and is made up of 3 notes (c,e,g). The second chord is 'F major' and it is made up of 3 notes  (f,a,c). Can you figure out the notes from the next 2 chords?",
+            notation: `X:4
 T:the first progression (i-iv-v-i) - root position
 M:4/4
 L:1/4
 K:C
 V:1
 "_C Major" [CEG]4 | "_F Major" [FAc]4 | "_G Major" [GBd]4 | "_C Major" [CEG]4 |`,
-                hint: "in music we use these notes in the alphabet - a,b,c,d,e,f,g. there are some other cool things we can do with those notes but for now just remeber, there is no h, i, j etc. also, pay attention to the lines and spaces on the notation and see if you can see a pattern",
-                answer: "the third chord is g major (g, b, d) and the fourth chord is c major (c, e, g)."
-              },
-              {
-                level: 2,
-                title: 'the first progression (i-iv-v-i) - 1st inversion',
-                description: 'learn the i-iv-v-i progression with chords in their first inversion.',
-                instructions: "this is the same i-iv-v-i progression, but now the chords are in '1st inversion'. we are using the exact same notes but we have done something different to one of them. can you tell what has changed in the notation?",
-                notation: `X:4
+            hint: "in music we use these notes in the alphabet - a,b,c,d,e,f,g. there are some other cool things we can do with those notes but for now just remeber, there is no h, i, j etc. also, pay attention to the lines and spaces on the notation and see if you can see a pattern",
+            answer: "the third chord is g major (g, b, d) and the fourth chord is c major (c, e, g)."
+          },
+          {
+            level: 2,
+            title: 'A simple progressiion (i-iv-v-i) - 1st inversion',
+            description: 'learn the i-iv-v-i progression with chords in their first inversion.',
+            instructions: "this is the same i-iv-v-i progression, but now the chords are in '1st inversion'. we are using the exact same notes but we have done something different to one of them. can you tell what has changed in the notation?",
+            notation: `X:4
 T:the first progression (i-iv-v-i) - 1st inversion
 M:4/4
 L:1/4
 K:C
 V:1
-"_e g c" [e g c]4 | "_a c f" [a c f]4 | "_b d g" [b d g]4 | "_e g c" [e g c]4 |`,
-                hint: "look at the order of the notes in each chord.",
-                answer: "we have shifted the first note from each chord to be the last note. for example, the c major chord (c-e-g) is now e-g-c. this is called a '1st inversion'."
-              },
-              {
-                level: 3,
-                title: 'the first progression (i-iv-v-i) - 2nd inversion',
-                description: 'learn the i-iv-v-i progression with chords in their second inversion.',
-                instructions: "this is the same i-iv-v-i progression, but now the chords are in '2nd inversion'. this means the fifth of the chord is now the lowest note. this type of inversion can create a powerful, open sound and is often used to create a different kind of harmonic movement.",
-                notation: `X:4
+"_e g c" [EGc]4 | "_a c f" [Acf]4 | "_b d g" [Bdg]4 | "_e g c" [EGc]4 |`,
+            hint: "look at the order of the notes in each chord.",
+            answer: "we have shifted the first note from each chord to be the last note. for example, the c major chord (c-e-g) is now e-g-c. this is called a '1st inversion'."
+          },
+          {
+            level: 3,
+            title: 'A simple progressiion (i-iv-v-i) - 2nd inversion',
+            description: 'learn the i-iv-v-i progression with chords in their second inversion.',
+            instructions: "this is the same i-iv-v-i progression, but now the chords are in '2nd inversion'. this means the fifth of the chord is now the lowest note. this type of inversion can create a powerful, open sound and is often used to create a different kind of harmonic movement.",
+            notation: `X:4
 T:the first progression (i-iv-v-i) - 2nd inversion
 M:4/4
 L:1/4
 K:C
 V:1
-"_c" [g c e]4 | "_f" [c f a]4 | "_g" [d g b]4 |  "_c" [g c e]4 |`
-              }
-            ],
+"_g c e" [Gce]4 | "_c f a" [cfa]4 | "_d g b" [dgb]4 | "_g c e" [Gce]4 |`
           }
+        ],
+      }
     ],
   },
 ];

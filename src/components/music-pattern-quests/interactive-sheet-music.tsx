@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
@@ -24,61 +23,61 @@ export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSh
   ({ abcNotation, onTempoChange, initialTempo, onNoteEvent }, ref) => {
     const sheetMusicRef = useRef<HTMLDivElement>(null);
     const visualObj = useRef<abcjs.TuneObject[] | null>(null);
-    const synthControl = useRef<abcjs.SynthController | null>(null);
-    
+    const synthControl = useRef<any>(null); // still `any` since abcjs types are incomplete
+
     const [tempo, setTempo] = useState(initialTempo);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useImperativeHandle(ref, () => ({
       getTempo: () => {
-        if (visualObj.current && visualObj.current[0] && visualObj.current[0].metaText.tempo) {
-          const newTempo = parseInt(visualObj.current[0].metaText.tempo, 10);
-          if (!isNaN(newTempo)) {
-            return newTempo;
-          }
+        if (!visualObj.current || visualObj.current.length === 0) return initialTempo;
+
+        const tempoValue = visualObj.current[0].metaText?.tempo;
+        if (typeof tempoValue === 'string') {
+          const parsed = parseInt(tempoValue, 10);
+          if (!isNaN(parsed)) return parsed;
+        } else if (typeof tempoValue === 'object' && tempoValue?.bpm) {
+          return tempoValue.bpm;
         }
         return initialTempo;
       },
     }));
-    
-    // Main effect to render and initialize audio
+
     useEffect(() => {
       if (typeof window === 'undefined' || !sheetMusicRef.current) return;
 
-      // Cleanup previous instances
-      if (synthControl.current && synthControl.current.midi) {
+      // Cleanup previous synth
+      if (synthControl.current?.midi) {
         synthControl.current.midi.stop();
       }
+
       sheetMusicRef.current.innerHTML = '';
       setError(null);
       setIsLoading(true);
 
-      let currentTempo = 120; // Default tempo
+      let currentTempo = initialTempo;
 
-      // Render the sheet music
       try {
-        const renderOptions = { add_classes: true, responsive: 'resize' };
+        const renderOptions = { add_classes: true, responsive: 'resize' as const };
         visualObj.current = abcjs.renderAbc(sheetMusicRef.current, abcNotation, renderOptions);
-        
-        if (visualObj.current && visualObj.current[0] && visualObj.current[0].metaText.tempo) {
-          const newTempo = parseInt(visualObj.current[0].metaText.tempo, 10);
-          if (!isNaN(newTempo)) {
-            currentTempo = newTempo;
-            if (newTempo !== tempo) {
-              setTempo(newTempo);
-              onTempoChange(newTempo);
+
+        if (visualObj.current && visualObj.current[0]) {
+          const tempoValue = visualObj.current[0].metaText?.tempo;
+          if (typeof tempoValue === 'string') {
+            const parsed = parseInt(tempoValue, 10);
+            if (!isNaN(parsed)) {
+              currentTempo = parsed;
             }
+          } else if (typeof tempoValue === 'object' && tempoValue?.bpm) {
+            currentTempo = tempoValue.bpm;
           }
-        } else {
-            // If no tempo in notation, use the initial tempo from props.
-            currentTempo = initialTempo;
-            if (tempo !== initialTempo) {
-              setTempo(initialTempo);
-              onTempoChange(initialTempo);
-            }
         }
 
+        if (currentTempo !== tempo) {
+          setTempo(currentTempo);
+          onTempoChange(currentTempo);
+        }
       } catch (renderError: any) {
         console.error('Error rendering ABC notation:', renderError);
         setError(renderError.message || 'An unknown error occurred during rendering.');
@@ -86,65 +85,67 @@ export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSh
         return;
       }
 
-      // Initialize the audio synthesizer
+      // Initialize audio synth
       if (abcjs.synth.supportsAudio()) {
         if (!synthControl.current) {
-          synthControl.current = new abcjs.synth.SynthController();
+          synthControl.current = new (abcjs as any).synth.SynthController();
         }
 
         const cursorControl = {
-            onStart: () => {
-              const svg = sheetMusicRef.current?.querySelector('svg');
-              if (svg) {
-                const cursor = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                cursor.setAttribute('class', 'abcjs-cursor');
-                svg.appendChild(cursor);
-              }
-            },
-            onFinished: () => {
-              if (onNoteEvent) {
-                onNoteEvent(null);
-              }
-              const cursor = sheetMusicRef.current?.querySelector('.abcjs-cursor');
-              if (cursor) {
-                cursor.setAttribute('x1', '0');
-                cursor.setAttribute('x2', '0');
-                cursor.setAttribute('y1', '0');
-                cursor.setAttribute('y2', '0');
-              }
-            },
-            onBeat: () => {},
-            onEvent: (ev: abcjs.NoteTimingEvent) => {
-              if (onNoteEvent) {
-                onNoteEvent(ev);
-              }
-              if (ev.measureStart && ev.left === null) return;
-              const cursor = sheetMusicRef.current?.querySelector('.abcjs-cursor');
-              if (cursor) {
-                cursor.setAttribute('x1', String(ev.left));
-                cursor.setAttribute('x2', String(ev.left));
-                cursor.setAttribute('y1', String(ev.top));
-                cursor.setAttribute('y2', String(ev.top + ev.height));
-              }
-            },
-          };
+          onStart: () => {
+            const svg = sheetMusicRef.current?.querySelector('svg');
+            if (svg) {
+              const cursor = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+              cursor.setAttribute('class', 'abcjs-cursor');
+              svg.appendChild(cursor);
+            }
+          },
+          onFinished: () => {
+            onNoteEvent?.(null);
+            const cursor = sheetMusicRef.current?.querySelector('.abcjs-cursor');
+            if (cursor) {
+              cursor.setAttribute('x1', '0');
+              cursor.setAttribute('x2', '0');
+              cursor.setAttribute('y1', '0');
+              cursor.setAttribute('y2', '0');
+            }
+          },
+          onBeat: () => { },
+          onEvent: (ev: abcjs.NoteTimingEvent) => {
+            onNoteEvent?.(ev);
+            if (ev.measureStart && ev.left === null) return;
+
+            const cursor = sheetMusicRef.current?.querySelector('.abcjs-cursor');
+            if (cursor) {
+              const left = ev.left ?? 0;
+              const top = ev.top ?? 0;
+              const height = ev.height ?? 0;
+              cursor.setAttribute('x1', String(left));
+              cursor.setAttribute('x2', String(left));
+              cursor.setAttribute('y1', String(top));
+              cursor.setAttribute('y2', String(top + height));
+            }
+          },
+        };
 
         synthControl.current.load('#audio', cursorControl, {
           displayLoop: true,
           displayRestart: true,
           displayPlay: true,
           displayProgress: true,
-          displayWarp: false, // This hides the tempo control
+          displayWarp: false,
         });
 
-        const midiBuffer = new abcjs.synth.CreateSynth();
+        const midiBuffer = new (abcjs as any).synth.CreateSynth();
         midiBuffer
-          .init({
-            visualObj: visualObj.current![0],
-          })
+          .init({ visualObj: visualObj.current![0] })
           .then(() => {
-            if (synthControl.current) {
-              return synthControl.current.setTune(visualObj.current![0], false, { qpm: currentTempo });
+            if (synthControl.current && visualObj.current) {
+              return (synthControl.current as any).setTune(
+                visualObj.current[0] as any,
+                false,
+                { qpm: currentTempo }
+              );
             }
           })
           .then(() => {
@@ -153,19 +154,16 @@ export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSh
           })
           .catch((err: any) => {
             console.warn('Audio initialization failed:', err);
-            setError(
-              err.message ||
-                'Audio initialization failed. Could not prepare the audio synthesizer.'
-            );
+            setError(err.message || 'Audio initialization failed.');
             setIsLoading(false);
           });
       } else {
         setError('Audio is not supported in this browser.');
         setIsLoading(false);
       }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [abcNotation]); // This effect should only re-run when the notation changes.
-  
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [abcNotation]);
+
     if (error) {
       return (
         <Alert variant="destructive">
@@ -173,8 +171,7 @@ export const InteractiveSheetMusic = forwardRef<SheetMusicHandles, InteractiveSh
           <AlertTitle>Rendering Error</AlertTitle>
           <AlertDescription>
             <p>
-              Could not display sheet music. Please check your ABC notation for
-              syntax errors.
+              Could not display sheet music. Please check your ABC notation for syntax errors.
             </p>
             <pre className="mt-2 whitespace-pre-wrap font-mono text-xs bg-destructive-foreground/10 p-2 rounded-md">
               {error}
