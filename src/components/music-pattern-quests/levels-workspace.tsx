@@ -245,11 +245,11 @@ function LevelDetail({
         return twinkleProgression;
       case 'scale degrees':
         return twinkleProgression;
-      case 'the first progression (i-iv-v-i) - root position':
+      case 'A simple progression (i-iv-v-i) - root position':
         return firstProgressionRoot;
-      case 'the first progression (i-iv-v-i) - 1st inversion':
+      case 'A simple progression (i-iv-v-i) - 1st inversion':
         return firstProgression1stInversion;
-      case 'the first progression (i-iv-v-i) - 2nd inversion':
+      case 'A simple progression (i-iv-v-i) - 2nd inversion':
         return firstProgression2ndInversion;
       default:
         return null;
