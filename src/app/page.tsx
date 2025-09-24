@@ -26,17 +26,22 @@ export default function Home() {
     <div className="flex flex-col min-h-screen">
       <main className="flex-1">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="sticky top-0 z-50 flex justify-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-5">
-            <TabsList>
-              <TabsTrigger value="home">home</TabsTrigger>
-              <TabsTrigger value="quests">quests</TabsTrigger>
-              <TabsTrigger value="patterns">patterns</TabsTrigger>
-              <TabsTrigger value="workspace">workspace</TabsTrigger>
-            </TabsList>
-            <div className="absolute right-4">
+          <div className="sticky top-0 z-50 flex justify-between items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-4 gap-4">
+            {/* Mobile-first responsive approach */}
+            <div className="flex-1 flex justify-center min-w-0">
+              <TabsList className="flex-1 max-w-md justify-center">
+                <TabsTrigger value="home" className="flex-1 min-w-0 px-2 text-xs sm:text-sm">home</TabsTrigger>
+                <TabsTrigger value="quests" className="flex-1 min-w-0 px-2 text-xs sm:text-sm">quests</TabsTrigger>
+                <TabsTrigger value="patterns" className="flex-1 min-w-0 px-2 text-xs sm:text-sm">patterns</TabsTrigger>
+                <TabsTrigger value="workspace" className="flex-1 min-w-0 px-2 text-xs sm:text-sm">workspace</TabsTrigger>
+              </TabsList>
+            </div>
+
+            {/* Help button positioned relatively with proper spacing */}
+            <div className="flex-shrink-0">
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="whitespace-nowrap text-xs sm:text-sm">
                     help
                   </Button>
                 </AlertDialogTrigger>
