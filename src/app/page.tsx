@@ -59,6 +59,14 @@ export default function Home() {
               </AlertDialog>
             </div>
           </div>
+
+          {/* Mobile warning banner */}
+          <div className="bg-yellow-100 border-b border-yellow-300 px-4 py-2 text-center">
+            <p className="text-yellow-800 text-xs sm:text-sm">
+              Audio may not work on mobile devices. For best experience, use a desktop device.
+            </p>
+          </div>
+
           <TabsContent value="home">
             <HomeWorkspace onTabChange={setActiveTab} />
           </TabsContent>
