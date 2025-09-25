@@ -12,19 +12,20 @@ export const metadata: Metadata = {
     description: 'an intelligent abc notation editor and playback tool.',
     images: [
       {
-        url: '/favicon.ico',
-        width: 64,
-        height: 64,
-        alt: 'Music Pattern Quests',
+        url: '/pyra-logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'Music Pattern Quests - ABC notation editor',
       },
     ],
     type: 'website',
+    siteName: 'Music Pattern Quests',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'music pattern quests',
     description: 'an intelligent abc notation editor and playback tool.',
-    images: ['/favicon.ico'],
+    images: ['/pyra-logo.png'],
   },
 };
 
