@@ -7,6 +7,25 @@ import { IBM_Plex_Mono } from 'next/font/google';
 export const metadata: Metadata = {
   title: 'music pattern quests',
   description: 'an intelligent abc notation editor and playback tool.',
+  openGraph: {
+    title: 'music pattern quests',
+    description: 'an intelligent abc notation editor and playback tool.',
+    images: [
+      {
+        url: '/favicon.ico',
+        width: 64,
+        height: 64,
+        alt: 'Music Pattern Quests',
+      },
+    ],
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'music pattern quests',
+    description: 'an intelligent abc notation editor and playback tool.',
+    images: ['/favicon.ico'],
+  },
 };
 
 const fontMono = IBM_Plex_Mono({
