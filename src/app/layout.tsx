@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     description: 'an intelligent abc notation editor and playback tool.',
     images: [
       {
-        url: '/pyra-logo.png',
+        url: 'https://isaaccavallaro.github.io/music-pattern-quests/pyra-logo.png',
         width: 1200,
         height: 630,
         alt: 'Music Pattern Quests - ABC notation editor',
@@ -20,12 +20,13 @@ export const metadata: Metadata = {
     ],
     type: 'website',
     siteName: 'Music Pattern Quests',
+    url: 'https://isaaccavallaro.github.io/music-pattern-quests/',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'music pattern quests',
     description: 'an intelligent abc notation editor and playback tool.',
-    images: ['/pyra-logo.png'],
+    images: ['https://isaaccavallaro.github.io/music-pattern-quests/pyra-logo.png'],
   },
 };
 
