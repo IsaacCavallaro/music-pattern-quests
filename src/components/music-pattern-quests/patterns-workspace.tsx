@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -34,26 +33,30 @@ export function PatternsWorkspace() {
   const [sortConfig, setSortConfig] = useState<SortConfig | null>({ key: 'key', direction: 'ascending' });
   const [searchQuery, setSearchQuery] = useState('');
 
-
   const selectedPattern = useMemo(() => {
     return harmonyPatterns.find(p => p.name === selectedPatternName) || harmonyPatterns[0];
   }, [selectedPatternName]);
 
   const sortedExamples = useMemo(() => {
-    let sortableItems = [...selectedPattern.examples];
-    if (sortConfig !== null) {
+    let sortableItems = [...(selectedPattern?.examples || [])];
+    if (sortConfig !== null && sortConfig !== undefined) {
       sortableItems.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
+        const aVal = a[sortConfig.key];
+        const bVal = b[sortConfig.key];
+
+        if (aVal == null || bVal == null) return 0;
+
+        if (aVal < bVal) {
           return sortConfig.direction === 'ascending' ? -1 : 1;
         }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
+        if (aVal > bVal) {
           return sortConfig.direction === 'ascending' ? 1 : -1;
         }
         return 0;
       });
     }
     return sortableItems;
-  }, [selectedPattern.examples, sortConfig]);
+  }, [selectedPattern?.examples, sortConfig]);
 
   const filteredExamples = useMemo(() => {
     if (!searchQuery) {
@@ -121,7 +124,7 @@ export function PatternsWorkspace() {
             <DialogTitle className="font-headline">{modalTitle}</DialogTitle>
           </DialogHeader>
           <div className="p-6">
-            {modalProgression.length > 0 && <PianoHero progression={modalProgression} tempo={modalTempo} />}
+            {modalProgression.length > 0 && <PianoHero progression={modalProgression} />}
           </div>
         </DialogContent>
       </Dialog>
@@ -148,7 +151,7 @@ export function PatternsWorkspace() {
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1 space-y-2">
                 <Label htmlFor="pattern-select">Progression</Label>
-                <Select onValueChange={setSelectedPatternName} defaultValue={selectedPatternName} id="pattern-select">
+                <Select onValueChange={setSelectedPatternName} defaultValue={selectedPatternName}>
                   <SelectTrigger>
                     <SelectValue placeholder="select a harmony pattern..." />
                   </SelectTrigger>
@@ -163,7 +166,7 @@ export function PatternsWorkspace() {
               </div>
               <div className="flex-1 space-y-2">
                 <Label htmlFor="key-select">Key</Label>
-                <Select onValueChange={setSelectedKey} value={selectedKey} id="key-select">
+                <Select onValueChange={setSelectedKey} value={selectedKey}>
                   <SelectTrigger>
                     <SelectValue placeholder="select a key..." />
                   </SelectTrigger>
@@ -183,6 +186,11 @@ export function PatternsWorkspace() {
 
         <Card>
           <CardHeader>
+            <div className="bg-yellow-100 border-b border-yellow-300 px-4 py-2 text-center">
+              <p className="text-yellow-800 text-xs sm:text-sm">
+                This is still a WIP so bare with me as I build it.
+              </p>
+            </div>
             <CardTitle className="font-headline">example songs</CardTitle>
             <CardDescription>
               This progression is used in countless hits. Click a song to see it in action in its original key.
@@ -213,7 +221,19 @@ export function PatternsWorkspace() {
               </TableHeader>
               <TableBody>
                 {filteredExamples.map((example) => (
-                  <TableRow key={example.song} onClick={() => handleExampleClick(example.key, example.song, example.artist, example.tempo, example.durationMultiplier)} className="cursor-pointer">
+                  <TableRow
+                    key={example.song}
+                    onClick={() =>
+                      handleExampleClick(
+                        example.key,
+                        example.song,
+                        example.artist,
+                        example.tempo,
+                        example.durationMultiplier
+                      )
+                    }
+                    className="cursor-pointer"
+                  >
                     <TableCell className="font-medium">{example.song}</TableCell>
                     <TableCell>{example.artist}</TableCell>
                     <TableCell>{example.key}</TableCell>
