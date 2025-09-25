@@ -37,7 +37,6 @@ const whiteKeys = notesMap.filter(n => !n.isSharp);
 const blackKeys = notesMap.filter(n => n.isSharp);
 
 const NOTE_FALL_SPEED = 100; // pixels per second
-const VIEWPORT_HEIGHT = 384; // h-96 -> 24rem -> 384px
 
 type Progression = {
     notes: string[];
@@ -61,7 +60,9 @@ export function PianoHero({ progression, displayMode = 'notes' }: PianoHeroProps
     const compressorRef = useRef<DynamicsCompressorNode | null>(null);
     const startTimeRef = useRef<number>(0);
     const pianoContainerDivRef = useRef<HTMLDivElement>(null);
+    const viewportRef = useRef<HTMLDivElement>(null);
     const [keyPositions, setKeyPositions] = useState<Map<string, { left: number; width: number }>>(new Map());
+    const [viewportHeight, setViewportHeight] = useState(384);
     const progressionRef = useRef(progression.map(p => ({ ...p, played: false })));
     const activeOscillatorsRef = useRef<Map<string, { oscillators: OscillatorNode[]; gainNode: GainNode }>>(new Map());
 
@@ -69,8 +70,7 @@ export function PianoHero({ progression, displayMode = 'notes' }: PianoHeroProps
         return progression.reduce((max, note) => Math.max(max, note.time + note.duration), 0);
     }, [progression]);
 
-
-    useEffect(() => {
+    const updateKeyPositions = useCallback(() => {
         if (pianoContainerDivRef.current) {
             const containerWidth = pianoContainerDivRef.current.getBoundingClientRect().width;
             const whiteKeyWidth = containerWidth / whiteKeys.length;
@@ -91,7 +91,38 @@ export function PianoHero({ progression, displayMode = 'notes' }: PianoHeroProps
             });
             setKeyPositions(newKeyPositions);
         }
+
+        // Update viewport height based on actual rendered size
+        if (viewportRef.current) {
+            const height = viewportRef.current.getBoundingClientRect().height;
+            setViewportHeight(height);
+        }
     }, []);
+
+    useEffect(() => {
+        // Delay initial measurement to ensure modal is fully rendered
+        const timer = setTimeout(() => {
+            updateKeyPositions();
+        }, 100);
+
+        const handleResize = () => {
+            updateKeyPositions();
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => {
+            clearTimeout(timer);
+            window.removeEventListener('resize', handleResize);
+        };
+    }, [updateKeyPositions]);
+
+    // Also update when progression changes (modal opens/closes)
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            updateKeyPositions();
+        }, 150);
+        return () => clearTimeout(timer);
+    }, [progression, updateKeyPositions]);
 
     const playChord = useCallback((noteNames: string[], duration: number) => {
         const audioContext = audioContextRef.current;
@@ -192,14 +223,14 @@ export function PianoHero({ progression, displayMode = 'notes' }: PianoHeroProps
         const elapsedTime = (timestamp - startTimeRef.current) / 1000;
         setTime(elapsedTime);
 
-        if (elapsedTime >= totalDuration + (VIEWPORT_HEIGHT / NOTE_FALL_SPEED)) {
+        if (elapsedTime >= totalDuration + (viewportHeight / NOTE_FALL_SPEED)) {
             stopAnimation();
             return;
         }
 
         const newActiveKeys = new Set<string>();
         progressionRef.current.forEach((chord, index) => {
-            const noteHitTime = chord.time + (VIEWPORT_HEIGHT / NOTE_FALL_SPEED);
+            const noteHitTime = chord.time + (viewportHeight / NOTE_FALL_SPEED);
 
             // Play sound when note hits
             if (elapsedTime >= noteHitTime && !chord.played) {
@@ -215,39 +246,45 @@ export function PianoHero({ progression, displayMode = 'notes' }: PianoHeroProps
         setActiveKeys(newActiveKeys);
 
         animationFrameId.current = requestAnimationFrame(animate);
-    }, [playChord, totalDuration, stopAnimation]);
+    }, [playChord, totalDuration, stopAnimation, viewportHeight]);
 
     const startAnimation = () => {
         if (isPlaying) return;
         if (typeof window === 'undefined') return;
 
-        if (!audioContextRef.current) {
-            const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        // Ensure viewport height is current before starting animation
+        updateKeyPositions();
 
-            const compressor = audioContext.createDynamicsCompressor();
-            compressor.threshold.setValueAtTime(-24, audioContext.currentTime);
-            compressor.knee.setValueAtTime(30, audioContext.currentTime);
-            compressor.ratio.setValueAtTime(12, audioContext.currentTime);
-            compressor.attack.setValueAtTime(0.003, audioContext.currentTime);
-            compressor.release.setValueAtTime(0.25, audioContext.currentTime);
+        // Small delay to ensure measurements are complete
+        setTimeout(() => {
+            if (!audioContextRef.current) {
+                const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
 
-            const masterGain = audioContext.createGain();
-            masterGain.gain.setValueAtTime(10, audioContext.currentTime);
+                const compressor = audioContext.createDynamicsCompressor();
+                compressor.threshold.setValueAtTime(-24, audioContext.currentTime);
+                compressor.knee.setValueAtTime(30, audioContext.currentTime);
+                compressor.ratio.setValueAtTime(12, audioContext.currentTime);
+                compressor.attack.setValueAtTime(0.003, audioContext.currentTime);
+                compressor.release.setValueAtTime(0.25, audioContext.currentTime);
 
-            compressor.connect(masterGain);
-            masterGain.connect(audioContext.destination);
+                const masterGain = audioContext.createGain();
+                masterGain.gain.setValueAtTime(10, audioContext.currentTime);
 
-            audioContextRef.current = audioContext;
-            masterGainRef.current = masterGain;
-            compressorRef.current = compressor;
-        } else if (audioContextRef.current.state === 'suspended') {
-            audioContextRef.current.resume();
-        }
+                compressor.connect(masterGain);
+                masterGain.connect(audioContext.destination);
 
-        progressionRef.current = progression.map(p => ({ ...p, played: false }));
-        setIsPlaying(true);
-        startTimeRef.current = 0;
-        animationFrameId.current = requestAnimationFrame(animate);
+                audioContextRef.current = audioContext;
+                masterGainRef.current = masterGain;
+                compressorRef.current = compressor;
+            } else if (audioContextRef.current.state === 'suspended') {
+                audioContextRef.current.resume();
+            }
+
+            progressionRef.current = progression.map(p => ({ ...p, played: false }));
+            setIsPlaying(true);
+            startTimeRef.current = 0;
+            animationFrameId.current = requestAnimationFrame(animate);
+        }, 50);
     };
 
 
@@ -274,8 +311,8 @@ export function PianoHero({ progression, displayMode = 'notes' }: PianoHeroProps
     }, []);
 
     return (
-        <div className="relative flex flex-col items-center justify-center gap-4">
-            <div className="relative w-full h-96 bg-background border rounded-t-lg overflow-hidden">
+        <div className="relative flex flex-col items-center justify-center gap-2 sm:gap-4 w-full max-w-full px-2 sm:px-4">
+            <div ref={viewportRef} className="relative w-full h-64 sm:h-80 md:h-96 bg-background border rounded-t-lg overflow-hidden">
                 {/* Falling Notes */}
                 {progression.map((chord, chordIndex) =>
                     chord.notes.map((noteName, noteIndex) => {
@@ -289,7 +326,7 @@ export function PianoHero({ progression, displayMode = 'notes' }: PianoHeroProps
                         const height = chord.duration * NOTE_FALL_SPEED;
                         const top = (time - chord.time) * NOTE_FALL_SPEED - height;
 
-                        if (top > VIEWPORT_HEIGHT) return null; // Note is past the viewport
+                        if (top > viewportHeight) return null; // Note is past the viewport
 
                         const colors = ['bg-blue-400', 'bg-green-400', 'bg-yellow-400', 'bg-purple-400', 'bg-pink-400', 'bg-indigo-400'];
 
@@ -297,7 +334,7 @@ export function PianoHero({ progression, displayMode = 'notes' }: PianoHeroProps
 
                         return (
                             <div key={`${chordIndex}-${noteIndex}`}
-                                className={cn("absolute rounded flex items-center justify-center font-bold text-white", isSharp ? 'z-10' : 'z-0', colors[chordIndex % colors.length])}
+                                className={cn("absolute rounded flex items-center justify-center font-bold text-white text-xs sm:text-sm", isSharp ? 'z-10' : 'z-0', colors[chordIndex % colors.length])}
                                 style={{
                                     left: keyPos.left,
                                     width: keyPos.width,
@@ -312,17 +349,17 @@ export function PianoHero({ progression, displayMode = 'notes' }: PianoHeroProps
                 )}
             </div>
             {/* Piano */}
-            <div ref={pianoContainerDivRef} className="relative flex h-32 w-full select-none rounded-b-lg border-t-0 border bg-background shadow-inner">
+            <div ref={pianoContainerDivRef} className="relative flex h-20 sm:h-24 md:h-32 w-full select-none rounded-b-lg border-t-0 border bg-background shadow-inner">
                 {whiteKeys.map((note) => (
                     <div
                         key={note.name}
                         className={cn(
-                            "flex h-full flex-1 flex-col justify-end rounded-b-md border border-muted-foreground bg-card p-2 text-foreground transition-colors duration-100",
+                            "flex h-full flex-1 flex-col justify-end rounded-b-md border border-muted-foreground bg-card p-1 sm:p-2 text-foreground transition-colors duration-100",
                             activeKeys.has(note.name) && "bg-red-500/50 border-red-600"
                         )}
                         style={{ width: `${100 / whiteKeys.length}%` }}
                     >
-                        <span className="pointer-events-none">
+                        <span className="pointer-events-none text-xs sm:text-sm">
                             {displayMode === 'notes' && note.name.slice(0, -1)}
                         </span>
                     </div>
@@ -345,13 +382,13 @@ export function PianoHero({ progression, displayMode = 'notes' }: PianoHeroProps
                 </div>
             </div>
 
-            <div className="flex gap-4">
-                <Button onClick={startAnimation} disabled={isPlaying}>
-                    <Play className="mr-2" />
+            <div className="flex gap-2 sm:gap-4">
+                <Button onClick={startAnimation} disabled={isPlaying} className="text-sm sm:text-base px-3 sm:px-4">
+                    <Play className="mr-1 sm:mr-2 h-4 w-4" />
                     start
                 </Button>
-                <Button onClick={stopAnimation} disabled={!isPlaying} variant="destructive">
-                    <StopCircle className="mr-2" />
+                <Button onClick={stopAnimation} disabled={!isPlaying} variant="destructive" className="text-sm sm:text-base px-3 sm:px-4">
+                    <StopCircle className="mr-1 sm:mr-2 h-4 w-4" />
                     stop
                 </Button>
             </div>
