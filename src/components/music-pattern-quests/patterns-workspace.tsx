@@ -89,12 +89,16 @@ export function PatternsWorkspace() {
   };
 
   const handlePreviewClick = () => {
-    const progression = generateProgressionInKey(selectedPattern.numerals, selectedKey, { tempo: 120 });
+    const progression = generateProgressionInKey(selectedPattern.numerals, selectedKey, {
+      key: selectedKey,
+      tempo: 120,
+    });
     setModalProgression(progression);
     setModalTitle(`${selectedPattern.name} in ${selectedKey}`);
-    setModalTempo(120); // Default tempo for preview
+    setModalTempo(120);
     setIsModalOpen(true);
-  }
+  };
+
 
   const getSortIndicator = (name: keyof SongExample) => {
     if (!sortConfig || sortConfig.key !== name) {
