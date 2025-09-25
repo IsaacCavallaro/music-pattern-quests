@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { MusicPatternQuestsWorkspace } from '@/components/music-pattern-quests/music-pattern-quests-workspace';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -21,9 +21,47 @@ import {
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('home');
+  const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
+
+  useEffect(() => {
+    // Show welcome dialog every time the page loads with a small delay
+    const timer = setTimeout(() => {
+      setShowWelcomeDialog(true);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []); // Empty dependency array means this runs once on component mount
 
   return (
     <div className="flex flex-col min-h-screen">
+      {/* Welcome Dialog */}
+      <AlertDialog open={showWelcomeDialog} onOpenChange={setShowWelcomeDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Welcome to Music Pattern Quests!</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-4">
+                <p>This is currently just a fun side project and a work in progress. Have a play around but we're still tinkering with this!</p>
+                <p>
+                  Want to contribute or raise an issue? Head to the repository:{" "}
+                  <a
+                    href="https://github.com/IsaacCavallaro/music-pattern-quests"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 underline font-medium"
+                  >
+                    github.com/IsaacCavallaro/music-pattern-quests
+                  </a>
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction>Let's explore!</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <main className="flex-1">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="sticky top-0 z-50 flex justify-between items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-4 gap-4">
@@ -36,7 +74,6 @@ export default function Home() {
                 <TabsTrigger value="workspace" className="flex-1 min-w-0 px-2 text-xs sm:text-sm">workspace</TabsTrigger>
               </TabsList>
             </div>
-
             {/* Help button positioned relatively with proper spacing */}
             <div className="flex-shrink-0">
               <AlertDialog>
@@ -48,8 +85,21 @@ export default function Home() {
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>Need help with sound?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Sound not working or being odd? Try using this website from a desktop (not a mobile device).
+                    <AlertDialogDescription asChild>
+                      <div className="space-y-4">
+                        <p>Sound not working or being odd? Try using this website from a desktop (not a mobile device).</p>
+                        <p className="pt-2">
+                          Want to contribute or raise an issue? Head to the repository:{" "}
+                          <a
+                            href="https://github.com/IsaacCavallaro/music-pattern-quests"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 underline font-medium"
+                          >
+                            github.com/IsaacCavallaro/music-pattern-quests
+                          </a>
+                        </p>
+                      </div>
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
