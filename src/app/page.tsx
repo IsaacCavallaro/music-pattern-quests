@@ -41,7 +41,7 @@ export default function Home() {
             <AlertDialogTitle>Welcome to Music Pattern Quests!</AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-4">
-                <p>This is currently just a fun side project and a work in progress. Have a play around but we're still tinkering with this!</p>
+                <p>This is currently just a fun side project and a work in progress. Have a play around but we're still tinkering with this! Also, the audio may not work on mobile so try on your desktop.</p>
                 <p>
                   Want to contribute or raise an issue? Head to the repository:{" "}
                   <a
