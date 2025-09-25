@@ -9,6 +9,8 @@ type SongExample = {
     song: string;
     artist: string;
     key: string;
+    tempo: number;
+    durationMultiplier?: number;
 };
 
 type HarmonyPattern = {
@@ -22,57 +24,60 @@ export const harmonyPatterns: HarmonyPattern[] = [
         name: 'I-V-vi-IV Progression',
         numerals: ['I', 'V', 'vi', 'IV'],
         examples: [
-            { song: "Let It Be", artist: "The Beatles", key: "C" },
-            { song: "Don't Stop Believin'", artist: "Journey", key: "E" },
-            { song: "Someone Like You", artist: "Adele", key: "A" },
-            { song: "Africa", artist: "Toto", key: "A" },
-            { song: "She Will Be Loved", artist: "Maroon 5", key: "C#m" },
-            { song: "With or Without You", artist: "U2", key: "D" },
-            { song: "Apologize", artist: "OneRepublic", key: "Eb" },
+            { song: "Let It Be", artist: "The Beatles", key: "C", tempo: 72 },
+            { song: "Don't Stop Believin'", artist: "Journey", key: "E", tempo: 119 },
+            { song: "Someone Like You", artist: "Adele", key: "A", tempo: 67, durationMultiplier: 2 },
+            { song: "Africa", artist: "Toto", key: "A", tempo: 93, durationMultiplier: 2 },
+            { song: "She Will Be Loved", artist: "Maroon 5", key: "B", tempo: 102, durationMultiplier: 2 },
+            { song: "With or Without You", artist: "U2", key: "D", tempo: 110 },
+            { song: "Apologize", artist: "OneRepublic", key: "Eb", tempo: 118 },
         ],
     },
     {
         name: 'I-IV-V-I Progression',
         numerals: ['I', 'IV', 'V', 'I'],
         examples: [
-            { song: "La Bamba", artist: "Ritchie Valens", key: "C" },
-            { song: "Twist and Shout", artist: "The Beatles", key: "D" },
-            { song: "Wild Thing", artist: "The Troggs", key: "A" },
-            { song: "Good Riddance (Time of Your Life)", artist: "Green Day", key: "G" },
-            { song: "Louie Louie", artist: "The Kingsmen", key: "A" },
+            { song: "La Bamba", artist: "Ritchie Valens", key: "C", tempo: 150 },
+            { song: "Twist and Shout", artist: "The Beatles", key: "D", tempo: 126 },
+            { song: "Wild Thing", artist: "The Troggs", key: "A", tempo: 108, durationMultiplier: 2 },
+            { song: "Good Riddance (Time of Your Life)", artist: "Green Day", key: "G", tempo: 90 },
+            { song: "Louie Louie", artist: "The Kingsmen", key: "A", tempo: 120 },
         ],
     },
     {
         name: 'ii-V-I (Jazz Standard)',
         numerals: ['ii', 'V', 'I'],
         examples: [
-            { song: "Autumn Leaves", artist: "Joseph Kosma", key: "G" },
-            { song: "Honeysuckle Rose", artist: "Fats Waller", key: "F" },
-            { song: "Tune Up", artist: "Miles Davis", key: "D" },
-            { song: "Satin Doll", artist: "Duke Ellington", key: "C" },
+            { song: "Autumn Leaves", artist: "Joseph Kosma", key: "G", tempo: 110 },
+            { song: "Honeysuckle Rose", artist: "Fats Waller", key: "F", tempo: 130 },
+            { song: "Tune Up", artist: "Miles Davis", key: "D", tempo: 160 },
+            { song: "Satin Doll", artist: "Duke Ellington", key: "C", tempo: 120 },
         ],
     },
     {
         name: 'i-VI-III-VII (Minor Progression)',
         numerals: ['i', 'VI', 'III', 'VII'],
         examples: [
-            { song: "Zombie", artist: "The Cranberries", key: "Em" },
-            { song: "Numb", artist: "Linkin Park", key: "F#m" },
-            { song: "Hello", artist: "Adele", key: "Fm" },
+            { song: "Zombie", artist: "The Cranberries", key: "Em", tempo: 86 },
+            { song: "Numb", artist: "Linkin Park", key: "F#m", tempo: 110 },
+            { song: "Hello", artist: "Adele", key: "Fm", tempo: 79 },
         ],
     }
 ];
 
 const noteOrder = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
-export const availableKeys = ['C', 'G', 'D', 'A', 'E', 'F', 'Bb', 'Eb', 'Ab', 'Db', 'Gb', 'B'];
+export const availableKeys = ['C', 'G', 'D', 'A', 'E', 'F', 'Bb', 'Eb', 'Ab', 'Db', 'Gb', 'B', 'Em', 'F#m', 'Fm'];
 
 const getNoteName = (index: number): string => {
     return noteOrder[index % 12];
 }
 
-const getNoteOctave = (noteIndex: number, baseOctave: number): number => {
-    return baseOctave + Math.floor(noteIndex / 12);
+const getNoteOctave = (noteIndex: number, rootNoteIndex: number, baseOctave: number): number => {
+    if ((rootNoteIndex % 12) > (noteIndex % 12)) {
+        return baseOctave + 1;
+    }
+    return baseOctave;
 }
 
 const getNoteFromParts = (name: string, octave: number): string => `${name}${octave}`;
@@ -98,15 +103,25 @@ const chordTypes = {
 };
 
 function buildChord(rootNoteIndex: number, quality: 'major' | 'minor' | 'diminished', baseOctave: number): string[] {
-    const chordDefinition = quality === 'major'
-        ? chordTypes['I']
-        : quality === 'minor'
-            ? chordTypes['i']
-            : chordTypes['vii°'];
+    let chordDefinitionIntervals: number[];
 
-    return chordDefinition.intervals.map(interval => {
+    switch (quality) {
+        case 'major':
+            chordDefinitionIntervals = chordTypes['I'].intervals;
+            break;
+        case 'minor':
+            chordDefinitionIntervals = chordTypes['i'].intervals;
+            break;
+        case 'diminished':
+            chordDefinitionIntervals = chordTypes['vii°'].intervals;
+            break;
+        default:
+            return [];
+    }
+
+    return chordDefinitionIntervals.map(interval => {
         const noteIndex = rootNoteIndex + interval;
-        const noteOctave = getNoteOctave(noteIndex, baseOctave);
+        const noteOctave = baseOctave + Math.floor((rootNoteIndex % 12 + interval) / 12);
         return getNoteFromParts(getNoteName(noteIndex), noteOctave);
     });
 }
@@ -120,35 +135,46 @@ const romanNumeralToIndex: { [key: string]: number } = {
 export function generateProgressionInKey(
     numerals: string[],
     key: string,
+    durationMultiplier: number = 1,
 ): Progression[] {
-    const quality = numerals[0] === numerals[0].toUpperCase() ? 'major' : 'minor';
+    const isMinorKey = key.endsWith('m') || ['Am', 'Em', 'Bm', 'F#m', 'C#m', 'G#m', 'D#m', 'A#m'].includes(key);
+    let rootKey = isMinorKey ? key.slice(0, -1) : key;
 
-    let keyRootIndex = noteOrder.indexOf(key);
-    if (key.endsWith('b')) {
-        const flatKeyIndex = (noteOrder.indexOf(key.slice(0, 1)) - 1 + 12) % 12;
-        keyRootIndex = flatKeyIndex;
+    let keyRootIndex = noteOrder.indexOf(rootKey.replace('b', '').replace('#', ''));
+    if (rootKey.endsWith('b')) {
+        keyRootIndex = (keyRootIndex - 1 + 12) % 12;
+    } else if (rootKey.endsWith('#')) {
+        keyRootIndex = (keyRootIndex + 1) % 12;
     }
 
     if (keyRootIndex === -1) return [];
 
-    const scaleIntervals = quality === 'major' ? majorScaleIntervals : naturalMinorScaleIntervals;
+    const scaleIntervals = isMinorKey ? naturalMinorScaleIntervals : majorScaleIntervals;
     const baseOctave = 4;
 
     const progression: Progression[] = [];
     let time = 0;
-    const duration = 1.9;
+    const baseDuration = 1.9;
 
     for (const numeral of numerals) {
-        const chordType = chordTypes[numeral as keyof typeof chordTypes];
-        if (!chordType) continue;
+        const isMinorChordInMajorKey = !isMinorKey && (numeral === 'ii' || numeral === 'iii' || numeral === 'vi');
+        const isMajorChordInMinorKey = isMinorKey && (numeral === 'III' || numeral === 'VI' || numeral === 'VII');
 
-        const scaleDegreeIndex = romanNumeralToIndex[numeral.toLowerCase()];
+        let quality: 'major' | 'minor' | 'diminished' = 'major';
+        if (numeral.endsWith('°')) {
+            quality = 'diminished';
+        } else if (numeral === numeral.toLowerCase()) {
+            quality = 'minor';
+        }
+
+        const scaleDegreeIndex = romanNumeralToIndex[numeral.replace('°', '').toLowerCase()];
         if (scaleDegreeIndex === undefined) continue;
 
         const rootNoteScaleInterval = scaleIntervals[scaleDegreeIndex];
         const rootNoteIndex = keyRootIndex + rootNoteScaleInterval;
 
-        const chordNotes = buildChord(rootNoteIndex, chordType.quality, baseOctave);
+        const chordNotes = buildChord(rootNoteIndex, quality, baseOctave);
+        const duration = baseDuration * durationMultiplier;
 
         progression.push({
             notes: chordNotes,
@@ -156,10 +182,8 @@ export function generateProgressionInKey(
             duration: duration,
         });
 
-        time += 2;
+        time += 2 * durationMultiplier;
     }
 
     return progression;
 }
-
-
