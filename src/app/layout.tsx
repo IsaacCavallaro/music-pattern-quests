@@ -6,10 +6,10 @@ import { IBM_Plex_Mono } from 'next/font/google';
 
 export const metadata: Metadata = {
   title: 'music pattern quests',
-  description: 'an intelligent abc notation editor and playback tool.',
+  description: 'a playful way to learn music.',
   openGraph: {
     title: 'music pattern quests',
-    description: 'an intelligent abc notation editor and playback tool.',
+    description: 'a playful way to learn music.',
     images: [
       {
         url: 'https://isaaccavallaro.github.io/music-pattern-quests/pyra-logo.png',
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'music pattern quests',
-    description: 'an intelligent abc notation editor and playback tool.',
+    description: 'a playful way to learn music.',
     images: ['https://isaaccavallaro.github.io/music-pattern-quests/pyra-logo.png'],
   },
 };
