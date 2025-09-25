@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -11,7 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { harmonyPatterns, availableKeys, generateProgressionInKey, type Progression } from '@/lib/music-theory';
+import { harmonyPatterns, availableKeys, generateProgressionInKey, type Progression, type SongExample } from '@/lib/music-theory';
 import { Label } from '../ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '../ui/button';
@@ -19,7 +20,7 @@ import { ArrowUpDown } from 'lucide-react';
 import { Input } from '../ui/input';
 
 type SortConfig = {
-  key: keyof typeof harmonyPatterns[0]['examples'][0];
+  key: keyof SongExample;
   direction: 'ascending' | 'descending';
 };
 
@@ -67,7 +68,7 @@ export function PatternsWorkspace() {
     );
   }, [sortedExamples, searchQuery]);
 
-  const requestSort = (key: keyof typeof harmonyPatterns[0]['examples'][0]) => {
+  const requestSort = (key: keyof SongExample) => {
     let direction: 'ascending' | 'descending' = 'ascending';
     if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
       direction = 'descending';
@@ -75,27 +76,27 @@ export function PatternsWorkspace() {
     setSortConfig({ key, direction });
   };
 
-  const handleExampleClick = (key: string, song: string, artist: string, tempo: number, durationMultiplier?: number) => {
-    if (availableKeys.includes(key)) {
-      const progression = generateProgressionInKey(selectedPattern.numerals, key, durationMultiplier);
+  const handleExampleClick = (example: SongExample) => {
+    if (availableKeys.includes(example.key)) {
+      const progression = generateProgressionInKey(selectedPattern.numerals, example.key, example);
       setModalProgression(progression);
-      setModalTitle(`${song} by ${artist} (Key of ${key})`);
-      setModalTempo(tempo);
+      setModalTitle(`${example.song} by ${example.artist} (Key of ${example.key})`);
+      setModalTempo(example.tempo);
       setIsModalOpen(true);
     } else {
-      console.warn(`Key "${key}" is not available for selection.`);
+      console.warn(`Key "${example.key}" is not available for selection.`);
     }
   };
 
   const handlePreviewClick = () => {
-    const progression = generateProgressionInKey(selectedPattern.numerals, selectedKey);
+    const progression = generateProgressionInKey(selectedPattern.numerals, selectedKey, { tempo: 120 });
     setModalProgression(progression);
     setModalTitle(`${selectedPattern.name} in ${selectedKey}`);
     setModalTempo(120); // Default tempo for preview
     setIsModalOpen(true);
   }
 
-  const getSortIndicator = (name: keyof typeof harmonyPatterns[0]['examples'][0]) => {
+  const getSortIndicator = (name: keyof SongExample) => {
     if (!sortConfig || sortConfig.key !== name) {
       return <ArrowUpDown className="ml-2 h-4 w-4 opacity-0 group-hover:opacity-50" />;
     }
@@ -119,11 +120,11 @@ export function PatternsWorkspace() {
       </Card>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-4xl">
+        <DialogContent className="w-[95vw] md:max-w-4xl p-2 sm:p-6">
           <DialogHeader>
             <DialogTitle className="font-headline">{modalTitle}</DialogTitle>
           </DialogHeader>
-          <div className="p-6">
+          <div className="p-0 sm:p-6">
             {modalProgression.length > 0 && <PianoHero progression={modalProgression} />}
           </div>
         </DialogContent>
@@ -223,15 +224,7 @@ export function PatternsWorkspace() {
                 {filteredExamples.map((example) => (
                   <TableRow
                     key={example.song}
-                    onClick={() =>
-                      handleExampleClick(
-                        example.key,
-                        example.song,
-                        example.artist,
-                        example.tempo,
-                        example.durationMultiplier
-                      )
-                    }
+                    onClick={() => handleExampleClick(example)}
                     className="cursor-pointer"
                   >
                     <TableCell className="font-medium">{example.song}</TableCell>
